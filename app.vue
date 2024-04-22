@@ -19,10 +19,6 @@ const setSelectedDate = (date: Date) => {
   selectedDate.value = date
 }
 
-// onMounted(async () => {
-//   fetchDepartures.value = await getDeparture();
-//   fetchDestinations.value = await getDestination({ outletasal: '1' });
-// });
 
 </script>
 
@@ -40,7 +36,6 @@ const setSelectedDate = (date: Date) => {
   </div>
   
   <FormReservation
-    v-if="destinations && destinations.outlet"
     :departures="departures"
     :destinations="destinations"
     :selected-departure="selectedDeparture"

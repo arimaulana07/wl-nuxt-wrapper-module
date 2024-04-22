@@ -6,6 +6,7 @@ interface GroupedOutlets {
 }
 
 export const groupBy = (data: OutletDeparture[]) => {
+  if (!data) return [];
   return data.reduce<GroupedOutlets[]>((curr, outlet) => {
     const current: GroupedOutlets[] = curr;
 

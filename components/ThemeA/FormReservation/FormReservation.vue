@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onUnmounted } from 'vue';
 import type { OutletDeparture, FormReservationProps } from '@/interface';
 import InputContainer from './InputContainer.vue';
 import { groupBy } from '@/utils';
@@ -11,11 +12,11 @@ const selectedDeparture = ref<string>('')
 const selectedDestination = ref<string>('')
 const selectedDate = ref()
 
-const outletDepartureGrouped = ref(groupBy(props.departures.outlet as OutletDeparture[]));
+const outletDepartureGrouped = toRef(() => groupBy(props.departures.outlet as OutletDeparture[]));
 const outletDestinationGrouped = toRef(() => groupBy(props.destinations.outlet as OutletDeparture[]));
 
 watch(outletDestinationGrouped, () => {
-  if (outletDestinationGrouped.value[0].items) {
+  if (outletDestinationGrouped.value.length > 0 && outletDestinationGrouped.value[0].items) {
     selectedDestination.value = outletDestinationGrouped.value[0].items[0].id
   }
 });
@@ -38,59 +39,70 @@ const dateChanged = () => {
   emit('onChange:selectedDate', selectedDate.value)
 }
 
+onMounted(() => {
+
+});
+
 </script>
 
 <template>
   <div class="w-full py-[50px] px-[30px] grid grid-cols-3 bg-[#4161AC]">
-    <InputContainer title="Mau Berangkat Dari Mana?">
-      <Dropdown
-        v-model="selectedDeparture"
-        filter
-        class="w-[300px]"
-        :options="outletDepartureGrouped"
-        option-label="nama"
-        option-value="id"
-        option-group-label="kota"
-        option-group-children="items"
-        @change="onChangeSelectedDeparture"
-      >
-        <template #optiongroup="slotProps">
-          <div class="flex align-items-center max-w-[250px]">
-            <div>{{ slotProps.option.kota }}</div>
-          </div>
-        </template>
-      </Dropdown>
-    </InputContainer>
-    
-    <InputContainer title="Tentukan Tujuan">
-      <Dropdown
-        v-model="selectedDestination"
-        filter
-        class=" w-[300px]"
-        :options="outletDestinationGrouped"
-        option-label="nama"
-        option-value="id"
-        option-group-label="kota"
-        option-group-children="items"
-        @change="onchangeSelectedDestination"
-      >
-        <template #optiongroup="slotProps">
-          <div class="flex align-items-center">
-            <div>{{ slotProps.option.kota }}</div>
-          </div>
-        </template>
-      </Dropdown>
-    </InputContainer>
+    <template v-if="outletDepartureGrouped && outletDepartureGrouped.length > 0">
+      <InputContainer title="Mau Berangkat Dari Mana?">
+        <Dropdown
+          v-model="selectedDeparture"
+          filter
+          class="w-[300px]"
+          :options="outletDepartureGrouped"
+          option-label="nama"
+          option-value="id"
+          option-group-label="kota"
+          option-group-children="items"
+          @change="onChangeSelectedDeparture"
+        >
+          <template #optiongroup="slotProps">
+            <div class="flex align-items-center max-w-[250px]">
+              <div>{{ slotProps.option.kota }}</div>
+            </div>
+          </template>
+        </Dropdown>
+      </InputContainer>
+      
+      <InputContainer title="Tentukan Tujuan">
+        <Dropdown
+          v-model="selectedDestination"
+          filter
+          class=" w-[300px]"
+          :options="outletDestinationGrouped"
+          option-label="nama"
+          option-value="id"
+          option-group-label="kota"
+          option-group-children="items"
+          @change="onchangeSelectedDestination"
+        >
+          <template #optiongroup="slotProps">
+            <div class="flex align-items-center">
+              <div>{{ slotProps.option.kota }}</div>
+            </div>
+          </template>
+        </Dropdown>
+      </InputContainer>
 
-    <InputContainer title="Tentukan Tanggal">
-      <Calendar
-        v-model="selectedDate"
-        class="text-center w-[250px]"
-        date-format="d M yy"
-        :manual-input="false"
-        @date-select="dateChanged"
-      />
-    </InputContainer>
+      <InputContainer title="Tentukan Tanggal">
+        <Calendar
+          v-model="selectedDate"
+          class="text-center w-[250px]"
+          date-format="d M yy"
+          :manual-input="false"
+          @date-select="dateChanged"
+        />
+      </InputContainer>
+    </template>
+    <template v-else>
+      <div class="w-full text-white">
+        Empty
+      </div>
+    </template>
   </div>
 </template>
 
